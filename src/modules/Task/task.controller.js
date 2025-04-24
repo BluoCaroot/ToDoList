@@ -7,7 +7,7 @@ export const getAllTasks = async (req, res) =>
 {
     const user = req.authUser._id;
 
-    const { status, priority, dueDate, page, limit } = req.query;
+    var { status, priority, dueDate, page, limit } = req.query;
     const query = {  $or: [{ createdBy: user }, { assignedTo: user }], isDeleted: false };
 
     if (status)
@@ -23,10 +23,10 @@ export const getAllTasks = async (req, res) =>
             return res.status(400).json({message: "Invalid date format"});
     }
     if (!page)
-        page = 0;
+        page = 1;
     if (!limit)
         limit = 10;
-    const tasks = await Tasks.find(query).page(page).limit(limit)
+    const tasks = await Tasks.find(query).skip((page - 1) * limit).limit(limit);
     if (!tasks || tasks.length === 0)
         return res.status(404).json({message: "No tasks found"})
     res.status(200).json(tasks);
@@ -34,7 +34,7 @@ export const getAllTasks = async (req, res) =>
 
 export const createTask = async (req, res) => 
 {
-    const { title, description, assignedTo, priority, dueDate} = req.body;
+    var { title, description, assignedTo, priority, dueDate} = req.body;
     
     const user = req.authUser._id;
     const status = "pending";
@@ -48,7 +48,7 @@ export const createTask = async (req, res) =>
     if (!assignedTo)
         assignedTo = user;
     
-        const isUserExist = await User.findById(assignedTo);
+    const isUserExist = await User.findById(assignedTo);
     if (!isUserExist)
         return res.status(404).json({message: "User not found"});
     

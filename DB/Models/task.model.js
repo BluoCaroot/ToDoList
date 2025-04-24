@@ -1,7 +1,7 @@
 
 import mongoose, { Schema, model } from "mongoose";
 
-const userSchema = new Schema(
+const taskSchema = new Schema(
 {
     title:{
         type: String,
@@ -22,8 +22,7 @@ const userSchema = new Schema(
         type: String,
         enum: ["pending", "in progress", "completed"],
         default: "pending",
-        required: true,
-        minlength: 8,
+        required: true
     },
     priority:{
         type: String,
@@ -51,4 +50,4 @@ const userSchema = new Schema(
 
 
 
-export default mongoose.models.User || model('User', userSchema)
+export default mongoose.models.Task || model('Task', taskSchema)

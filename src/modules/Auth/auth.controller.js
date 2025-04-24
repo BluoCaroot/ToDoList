@@ -33,7 +33,6 @@ export const signUp = async (req, res, next) => {
 
 
     const newUser = await User.create({ username, email, password: hashedPassword, age, phoneNumbers, addresses })
-    req.savedDocuments.push({ model: User, _id: newUser._id, method: "add"})
 
     res.status(201).json(
     {
@@ -53,7 +52,6 @@ export const verifyEmail = async (req, res, next) =>
     if (!user)
         return next(new Error('User not found', { cause: 404 }))
 
-    req.savedDocuments.push({ model: User, _id: user._id, method: "update", old: user.toObject()})
 
     user.isEmailVerified = true
     const updatedUser = await user.save()
@@ -70,7 +68,8 @@ export const signIn = async (req, res, next) =>
 {
     const { email, password } = req.body
 
-    const user = await User.findOne({ email, isEmailVerified: true })
+    console.log(email)
+    const user = await User.findOne({ email })
 
     if (!user)
         return next(new Error('Invalid login credentails', { cause: 404 }))
@@ -157,13 +156,11 @@ export const resetPassword = async (req, res, next) =>
 
     const decodedData = jwt.verify(token, process.env.JWT_SECRET_FORGETPASSWORD)
 
-    const user = await User.findOne({ email: decodedData.email, isEmailVerified: true })
+    const user = await User.findOne({ email: decodedData.email })
     if (!user)
         return next(new Error('incorrect code', { cause: 404 }))
 
     const hashedPassword = bcrypt.hashSync(password, +process.env.SALT_ROUNDS)
-
-    req.savedDocuments.push({ model: User, _id: user._id, method: "update", old: user.toObject()})
 
     user.password = hashedPassword
     const updatedUser = await user.save()

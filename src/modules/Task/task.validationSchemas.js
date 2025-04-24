@@ -20,7 +20,7 @@ export const createTaskSchema =
     {
         title: Joi.string().required(),
         description: Joi.string().required(),
-        assignedTo: generalValidationRule.dbId.required(),
+        assignedTo: generalValidationRule.dbId,
         priority: Joi.string().valid("low", "medium", "high"),
         dueDate: Joi.string().isoDate()
     }),
